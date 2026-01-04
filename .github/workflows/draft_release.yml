@@ -1,0 +1,74 @@
+name: Draft Release (Test)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to test (e.g., v0.4.0-rc.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Test before draft release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+          cache: true
+
+      - name: Run tests
+        run: go test -v ./...
+
+      - name: Run linters
+        run: |
+          gofmt -s -l .
+          go vet ./...
+          go mod verify
+
+  draft-release:
+    name: Create Draft Release
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+          cache: true
+
+      - name: Create and push tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a ${{ inputs.version }} -m "Draft release ${{ inputs.version }}"
+          git push origin ${{ inputs.version }}
+
+      - name: Run GoReleaser (Snapshot)
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment on draft
+        run: |
+          echo "Draft release created! Review at: https://github.com/${{ github.repository }}/releases/tag/${{ inputs.version }}"
+          echo "If everything looks good, publish the release manually or delete and create a proper release tag."

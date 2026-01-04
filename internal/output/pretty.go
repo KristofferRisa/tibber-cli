@@ -10,17 +10,17 @@ import (
 
 // ANSI color codes
 const (
-	Reset      = "\033[0m"
-	Bold       = "\033[1m"
-	Dim        = "\033[2m"
+	Reset = "\033[0m"
+	Bold  = "\033[1m"
+	Dim   = "\033[2m"
 
-	Red        = "\033[31m"
-	Green      = "\033[32m"
-	Yellow     = "\033[33m"
-	Blue       = "\033[34m"
-	Magenta    = "\033[35m"
-	Cyan       = "\033[36m"
-	White      = "\033[37m"
+	Red     = "\033[31m"
+	Green   = "\033[32m"
+	Yellow  = "\033[33m"
+	Blue    = "\033[34m"
+	Magenta = "\033[35m"
+	Cyan    = "\033[36m"
+	White   = "\033[37m"
 
 	BrightRed    = "\033[91m"
 	BrightGreen  = "\033[92m"
@@ -154,7 +154,7 @@ func (f *PrettyFormatter) formatPriceList(prices []models.Price) string {
 		// Highlight current hour
 		now := time.Now()
 		isCurrent := p.StartsAt.Local().Hour() == now.Hour() &&
-		             p.StartsAt.Local().Day() == now.Day()
+			p.StartsAt.Local().Day() == now.Day()
 
 		prefix := "  "
 		if isCurrent {

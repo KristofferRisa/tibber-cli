@@ -4,16 +4,16 @@ import "time"
 
 // Home represents a Tibber home/residence
 type Home struct {
-	ID                         string  `json:"id"`
-	AppNickname                string  `json:"appNickname"`
-	Size                       int     `json:"size"`
-	Type                       string  `json:"type"`
-	NumberOfResidents          int     `json:"numberOfResidents"`
-	PrimaryHeatingSource       string  `json:"primaryHeatingSource"`
-	HasVentilationSystem       bool    `json:"hasVentilationSystem"`
-	MainFuseSize               int     `json:"mainFuseSize"`
-	Address                    Address `json:"address"`
-	Features                   Features `json:"features"`
+	ID                   string   `json:"id"`
+	AppNickname          string   `json:"appNickname"`
+	Size                 int      `json:"size"`
+	Type                 string   `json:"type"`
+	NumberOfResidents    int      `json:"numberOfResidents"`
+	PrimaryHeatingSource string   `json:"primaryHeatingSource"`
+	HasVentilationSystem bool     `json:"hasVentilationSystem"`
+	MainFuseSize         int      `json:"mainFuseSize"`
+	Address              Address  `json:"address"`
+	Features             Features `json:"features"`
 }
 
 // Address represents a physical address
