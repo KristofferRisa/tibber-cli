@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kristofferrisa/tibber-cli/internal/models"
+	"github.com/kristofferrisa/powerctl-cli/internal/models"
 )
 
 // MarkdownFormatter outputs data as Markdown tables

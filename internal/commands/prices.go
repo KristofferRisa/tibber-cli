@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/kristofferrisa/tibber-cli/internal/api"
+	"github.com/kristofferrisa/powerctl-cli/internal/api"
 )
 
 var pricesCmd = &cobra.Command{

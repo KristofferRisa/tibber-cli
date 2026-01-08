@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/kristofferrisa/tibber-cli/internal/models"
+	"github.com/kristofferrisa/powerctl-cli/internal/models"
 )
 
 const (

@@ -12,7 +12,7 @@ A cross-platform CLI tool for Tibber power consumption data, built following Uni
 ## Directory Structure
 
 ```
-tibber-cli/
+powerctl-cli/
 ├── cmd/
 │   └── tibber/
 │       └── main.go              # Entry point, command registration

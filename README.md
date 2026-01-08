@@ -3,9 +3,9 @@
 A beautiful command-line tool for monitoring your Tibber power consumption and electricity prices.
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/kristofferrisa/tibber-cli" alt="Release">
-  <img src="https://img.shields.io/github/actions/workflow/status/kristofferrisa/tibber-cli/test.yml" alt="Tests">
-  <img src="https://img.shields.io/github/license/kristofferrisa/tibber-cli" alt="License">
+  <img src="https://img.shields.io/github/v/release/kristofferrisa/powerctl-cli" alt="Release">
+  <img src="https://img.shields.io/github/actions/workflow/status/kristofferrisa/powerctl-cli/test.yml" alt="Tests">
+  <img src="https://img.shields.io/github/license/kristofferrisa/powerctl-cli" alt="License">
 </p>
 
 ## Features
@@ -20,13 +20,13 @@ A beautiful command-line tool for monitoring your Tibber power consumption and e
 
 ### Download Binary
 
-Download the latest release for your platform from [Releases](https://github.com/kristofferrisa/tibber-cli/releases).
+Download the latest release for your platform from [Releases](https://github.com/kristofferrisa/powerctl-cli/releases).
 
 ### Build from Source
 
 ```bash
-git clone https://github.com/kristofferrisa/tibber-cli.git
-cd tibber-cli
+git clone https://github.com/kristofferrisa/powerctl-cli.git
+cd powerctl-cli
 make build
 ./tibber --help
 ```

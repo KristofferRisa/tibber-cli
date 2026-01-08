@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
-	"github.com/kristofferrisa/tibber-cli/internal/api"
-	"github.com/kristofferrisa/tibber-cli/internal/config"
+	"github.com/kristofferrisa/powerctl-cli/internal/api"
+	"github.com/kristofferrisa/powerctl-cli/internal/config"
 )
 
 var configCmd = &cobra.Command{

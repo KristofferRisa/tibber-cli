@@ -3,7 +3,7 @@ package output
 import (
 	"encoding/json"
 
-	"github.com/kristofferrisa/tibber-cli/internal/models"
+	"github.com/kristofferrisa/powerctl-cli/internal/models"
 )
 
 // JSONFormatter outputs data as JSON

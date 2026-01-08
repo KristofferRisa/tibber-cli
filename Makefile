@@ -1,7 +1,7 @@
 .PHONY: build build-all clean test install
 
 # Binary name
-BINARY=tibber
+BINARY=powerctl
 
 # Build directory
 DIST=dist
@@ -14,11 +14,11 @@ LDFLAGS=-ldflags "-s -w -X main.version=$(VERSION)"
 
 # Default target
 build:
-	go build $(LDFLAGS) -o $(BINARY) ./cmd/tibber
+	go build $(LDFLAGS) -o $(BINARY) ./cmd/powerctl
 
 # Install to GOPATH/bin
 install:
-	go install $(LDFLAGS) ./cmd/tibber
+	go install $(LDFLAGS) ./cmd/powerctl
 
 # Run tests
 test:
@@ -28,15 +28,15 @@ test:
 build-all: build-linux build-darwin build-windows
 
 build-linux:
-	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o $(DIST)/$(BINARY)-linux-amd64 ./cmd/tibber
-	GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -o $(DIST)/$(BINARY)-linux-arm64 ./cmd/tibber
+	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o $(DIST)/$(BINARY)-linux-amd64 ./cmd/powerctl
+	GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -o $(DIST)/$(BINARY)-linux-arm64 ./cmd/powerctl
 
 build-darwin:
-	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o $(DIST)/$(BINARY)-darwin-amd64 ./cmd/tibber
-	GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o $(DIST)/$(BINARY)-darwin-arm64 ./cmd/tibber
+	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o $(DIST)/$(BINARY)-darwin-amd64 ./cmd/powerctl
+	GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o $(DIST)/$(BINARY)-darwin-arm64 ./cmd/powerctl
 
 build-windows:
-	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o $(DIST)/$(BINARY)-windows-amd64.exe ./cmd/tibber
+	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o $(DIST)/$(BINARY)-windows-amd64.exe ./cmd/powerctl
 
 # Clean build artifacts
 clean:

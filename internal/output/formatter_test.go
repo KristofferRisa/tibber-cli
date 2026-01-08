@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/kristofferrisa/tibber-cli/internal/models"
+	"github.com/kristofferrisa/powerctl-cli/internal/models"
 )
 
 func TestNew_ReturnsCorrectFormatter(t *testing.T) {

@@ -1,4 +1,4 @@
-module github.com/kristofferrisa/tibber-cli
+module github.com/kristofferrisa/powerctl-cli
 
 go 1.23.0
 

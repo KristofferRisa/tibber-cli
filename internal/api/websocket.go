@@ -9,12 +9,12 @@ import (
 
 	"nhooyr.io/websocket"
 
-	"github.com/kristofferrisa/tibber-cli/internal/models"
+	"github.com/kristofferrisa/powerctl-cli/internal/models"
 )
 
 const (
 	// UserAgent identifies this CLI to the Tibber API
-	UserAgent = "tibber-cli/1.0"
+	UserAgent = "powerctl-cli/1.0"
 )
 
 const (

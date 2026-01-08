@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/kristofferrisa/tibber-cli/internal/commands"
+	"github.com/kristofferrisa/powerctl-cli/internal/commands"
 )
 
 func main() {

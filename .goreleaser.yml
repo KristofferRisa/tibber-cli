@@ -6,8 +6,8 @@ before:
     - go test ./...
 
 builds:
-  - main: ./cmd/tibber
-    binary: tibber
+  - main: ./cmd/powerctl
+    binary: powerctl
     env:
       - CGO_ENABLED=0
     goos:
@@ -44,6 +44,6 @@ changelog:
 release:
   github:
     owner: kristofferrisa
-    name: tibber-cli
+    name: powerctl-cli
   draft: false
   prerelease: auto

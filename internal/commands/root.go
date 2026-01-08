@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/kristofferrisa/tibber-cli/internal/config"
-	"github.com/kristofferrisa/tibber-cli/internal/output"
+	"github.com/kristofferrisa/powerctl-cli/internal/config"
+	"github.com/kristofferrisa/powerctl-cli/internal/output"
 )
 
 var (

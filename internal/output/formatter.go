@@ -1,6 +1,6 @@
 package output
 
-import "github.com/kristofferrisa/tibber-cli/internal/models"
+import "github.com/kristofferrisa/powerctl-cli/internal/models"
 
 // Formatter defines the interface for output formatting
 type Formatter interface {
