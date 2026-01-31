@@ -92,7 +92,7 @@ jobs:
           cache: true
 
       - name: Build binary
-        run: go build -v -o tibber ./cmd/tibber
+        run: go build -v -o powerctl ./cmd/powerctl
 
       - name: Test binary
-        run: ./tibber --help
+        run: ./powerctl --help

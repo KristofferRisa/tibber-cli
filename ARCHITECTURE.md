@@ -14,7 +14,7 @@ A cross-platform CLI tool for Tibber power consumption data, built following Uni
 ```
 powerctl-cli/
 ├── cmd/
-│   └── tibber/
+│   └── powerctl/
 │       └── main.go              # Entry point, command registration
 ├── internal/
 │   ├── api/
@@ -23,10 +23,10 @@ powerctl-cli/
 │   │   └── websocket.go         # WebSocket for live streaming
 │   ├── commands/
 │   │   ├── root.go              # Root command, global flags
-│   │   ├── config.go            # `tibber config` - setup wizard
-│   │   ├── home.go              # `tibber home`
-│   │   ├── prices.go            # `tibber prices`
-│   │   └── live.go              # `tibber live`
+│   │   ├── config.go            # `powerctl config` - setup wizard
+│   │   ├── home.go              # `powerctl home`
+│   │   ├── prices.go            # `powerctl prices`
+│   │   └── live.go              # `powerctl live`
 │   ├── config/
 │   │   └── config.go            # Configuration loading
 │   ├── models/
@@ -44,7 +44,7 @@ powerctl-cli/
 
 ## Component Overview
 
-### Entry Point (`cmd/tibber/main.go`)
+### Entry Point (`cmd/powerctl/main.go`)
 
 Minimal entry point following Go conventions:
 
@@ -62,10 +62,10 @@ Configuration resolution order (first wins):
 
 1. Command-line flags
 2. `TIBBER_TOKEN` environment variable
-3. Config file (`~/.tibber/config.yaml`)
+3. Config file (`~/.powerctl/config.yaml`)
 
 ```yaml
-# ~/.tibber/config.yaml
+# ~/.powerctl/config.yaml
 token: "your-api-token"
 home_id: "optional-home-id"      # Skip home selection
 format: "markdown"               # Default output format
@@ -139,8 +139,8 @@ Three implementations:
 
 | Type | URL |
 |------|-----|
-| GraphQL | `https://api.tibber.com/v1-beta/gql` |
-| WebSocket | `wss://websocket-api.tibber.com/v1-beta/gql/subscriptions` |
+| GraphQL | `https://api.powerctl.com/v1-beta/gql` |
+| WebSocket | `wss://websocket-api.powerctl.com/v1-beta/gql/subscriptions` |
 
 ### Authentication
 
@@ -171,7 +171,7 @@ PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64
 build-all:
     @for platform in $(PLATFORMS); do \
         GOOS=$${platform%/*} GOARCH=$${platform#*/} \
-        go build -o dist/tibber-$${platform%/*}-$${platform#*/} ./cmd/tibber; \
+        go build -o dist/powerctl-$${platform%/*}-$${platform#*/} ./cmd/powerctl; \
     done
 ```
 
