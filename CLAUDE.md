@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Test Commands
 
 ```bash
-make build          # Build binary to ./tibber
+make build          # Build binary to ./powerctl
 make test           # Run all tests
 make fmt            # Format code
 make lint           # Run golangci-lint
@@ -25,7 +25,7 @@ This is a Go CLI for Tibber power consumption data using Cobra for commands.
 
 **Key flow:** Commands (`internal/commands/`) → API client (`internal/api/`) → Output formatter (`internal/output/`)
 
-**Configuration priority:** CLI flags > `TIBBER_TOKEN` env var > `~/.tibber/config.yaml`
+**Configuration priority:** CLI flags > `TIBBER_TOKEN` env var > `~/.powerctl/config.yaml`
 
 **Output formats:** `pretty` (default, colored), `json`, `markdown` — selected via `--format` flag
 

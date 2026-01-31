@@ -19,7 +19,7 @@ var (
 
 // rootCmd represents the base command
 var rootCmd = &cobra.Command{
-	Use:   "tibber",
+	Use:   "powerctl",
 	Short: "Tibber CLI - Power consumption and price data",
 	Long: `A command-line interface for Tibber power data.
 

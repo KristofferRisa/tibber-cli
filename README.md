@@ -28,7 +28,7 @@ Download the latest release for your platform from [Releases](https://github.com
 git clone https://github.com/kristofferrisa/powerctl-cli.git
 cd powerctl-cli
 make build
-./tibber --help
+./powerctl --help
 ```
 
 ## Quick Start
@@ -164,7 +164,7 @@ tibber config set format json
 
 ### Build
 ```bash
-make build          # Build ./tibber
+make build          # Build ./powerctl
 make build-all      # Cross-compile all platforms
 ```
 
