@@ -27,13 +27,16 @@ const (
 type LiveClient struct {
 	token  string
 	homeID string
+	// endpoint is WebSocketEndpoint unless a test points it at a local server.
+	endpoint string
 }
 
 // NewLiveClient creates a new WebSocket client for live data
 func NewLiveClient(token, homeID string) *LiveClient {
 	return &LiveClient{
-		token:  token,
-		homeID: homeID,
+		token:    token,
+		homeID:   homeID,
+		endpoint: WebSocketEndpoint,
 	}
 }
 
@@ -50,14 +53,28 @@ func (c *LiveClient) Subscribe(ctx context.Context, handler func(*models.LiveMea
 	headers := http.Header{}
 	headers.Set("User-Agent", UserAgent)
 
-	conn, _, err := websocket.Dial(ctx, WebSocketEndpoint, &websocket.DialOptions{
+	conn, resp, err := websocket.Dial(ctx, c.endpoint, &websocket.DialOptions{
 		Subprotocols: []string{"graphql-transport-ws"},
 		HTTPHeader:   headers,
 	})
 	if err != nil {
+		// A refused handshake is a credentials or endpoint problem rather than a
+		// blip, and would be refused identically on every reconnect.
+		if resp != nil && (resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden) {
+			return markFatal(fmt.Errorf("failed to connect: %w", err))
+		}
 		return fmt.Errorf("failed to connect: %w", err)
 	}
-	defer func() { _ = conn.Close(websocket.StatusNormalClosure, "") }() // (websocket.StatusNormalClosure, "")
+	defer func() {
+		if ctx.Err() != nil {
+			// The caller is already shutting down. A close handshake would make
+			// Ctrl+C wait up to five seconds for a reply the server may never
+			// send, so drop the socket instead.
+			_ = conn.CloseNow()
+			return
+		}
+		_ = conn.Close(websocket.StatusNormalClosure, "")
+	}()
 
 	// Send connection_init
 	initPayload, _ := json.Marshal(map[string]string{
@@ -112,13 +129,15 @@ func (c *LiveClient) Subscribe(ctx context.Context, handler func(*models.LiveMea
 			case "next":
 				measurement, err := c.parsePayload(msg.Payload)
 				if err != nil {
-					return err
+					// The subscription itself is wrong (bad home ID, GraphQL
+					// error): a fresh connection gets the same payload back.
+					return markFatal(err)
 				}
 				if err := handler(measurement); err != nil {
-					return err
+					return markFatal(err)
 				}
 			case "error":
-				return fmt.Errorf("subscription error: %s", string(msg.Payload))
+				return markFatal(fmt.Errorf("subscription error: %s", string(msg.Payload)))
 			case "complete":
 				return nil
 			}
@@ -146,6 +165,10 @@ func (c *LiveClient) waitForAck(ctx context.Context, conn *websocket.Conn) error
 	var msg wsMessage
 	if err := json.Unmarshal(data, &msg); err != nil {
 		return fmt.Errorf("failed to parse ack: %w", err)
+	}
+
+	if msg.Type == "connection_error" {
+		return markFatal(fmt.Errorf("connection rejected: %s", string(msg.Payload)))
 	}
 
 	if msg.Type != "connection_ack" {

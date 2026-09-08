@@ -22,7 +22,10 @@ powerctl-cli/
 │   │   ├── client_test.go
 │   │   ├── queries.go           # GraphQL query definitions
 │   │   ├── websocket.go         # WebSocket for live streaming
-│   │   └── websocket_test.go
+│   │   ├── websocket_test.go
+│   │   ├── reconnect.go         # Backoff, hourly budget, error taxonomy
+│   │   ├── reconnect_test.go
+│   │   └── livestream_test.go   # End-to-end against a local WebSocket server
 │   ├── commands/
 │   │   ├── root.go              # Root command, global flags
 │   │   ├── config.go            # `powerctl config` - setup wizard
@@ -94,11 +97,42 @@ format: "markdown"               # Default output format
 
 - Protocol: `graphql-transport-ws`
 - Requires `User-Agent: powerctl-cli/1.0` — Tibber rejects the default Go client
-- Reconnection: none. A read or parse error ends the stream and exits 1
 - Heartbeat: none. The connection lives as long as the server keeps it open
-- Graceful shutdown on SIGINT/SIGTERM
+- Graceful shutdown on SIGINT/SIGTERM, including mid-backoff
 - A GraphQL error payload or a null `liveMeasurement` becomes an error rather
   than a nil measurement handed to the formatter (see #13)
+
+#### Reconnection (`reconnect.go`)
+
+`Subscribe` stays a single-attempt primitive; `SubscribeWithReconnect` layers
+the retry on top, so the connection code stays testable without a retry loop
+running through it.
+
+- Backoff: 5s, doubling to a 5-minute ceiling, with equal jitter (half the delay
+  fixed, half random)
+- Budget: at most 10 connection attempts per rolling hour. Tibber allows 20, and
+  a failing stream must not spend the allowance a manual restart needs. Hitting
+  the cap ends the stream with `ErrReconnectBudget`
+- Reset: a connection that delivered data and stayed up for a minute returns the
+  backoff to 5s
+- `--no-reconnect` skips the layer entirely and calls `Subscribe` directly
+
+Whether an error is retried is the substance of it, since a wrong answer either
+drops a recoverable stream or burns the hourly budget on a request that can
+never succeed:
+
+| Condition | Behaviour |
+|-----------|-----------|
+| Read error, abnormal or server-initiated close | Retry |
+| Handshake refused with HTTP 401/403 | Fatal, exit 1 |
+| Close code `4403 Invalid token` | Fatal, exit 1 |
+| `connection_error` in place of `connection_ack` | Fatal, exit 1 |
+| Unknown home ID, other GraphQL errors (see #13) | Fatal, exit 1 |
+| Ack timeout (10s, internal deadline) | Retry |
+| `ctx` cancelled by SIGINT/SIGTERM | Clean exit 0 |
+
+Fatal errors are tagged at the point they are raised (`markFatal`) rather than
+matched on message text later.
 
 ### Commands (`internal/commands/`)
 
@@ -110,7 +144,7 @@ format: "markdown"               # Default output format
 | `home` | - | Home info | 0=OK, 1=Error |
 | `prices` | - | Price list | 0=OK, 1=Error |
 | `consumption`| `--resolution`, `--last`, `--home-id` | Consumption history | 0=OK, 1=Error |
-| `live` | `--home-id` | Stream | 0=Clean exit, 1=Error |
+| `live` | `--home-id`, `--no-reconnect` | Stream | 0=Clean exit, 1=Error |
 | `version` | - | Version, commit, build date | 0=OK |
 
 ### Output Formatters (`internal/output/`)
@@ -180,6 +214,7 @@ Authorization: Bearer <token>
 | Category | Strategy |
 |----------|----------|
 | Network errors | Log and exit with code 1 |
+| Dropped live stream | Reconnect with bounded backoff; exit 1 once the hourly budget is spent |
 | Auth errors | Clear message: "Invalid token" |
 | No Pulse | Exit 1 with "Pulse not enabled" |
 | Parse errors | Log raw response, exit 1 |
@@ -210,7 +245,9 @@ windows/amd64. Release builds do not use this — see below.
 internal/
 ├── api/
 │   ├── client_test.go       # Mock HTTP responses
-│   └── websocket_test.go    # Live payload parsing and error mapping
+│   ├── websocket_test.go    # Live payload parsing and error mapping
+│   ├── reconnect_test.go    # Backoff and budget, on a faked clock
+│   └── livestream_test.go   # Reconnect over a real socket, via httptest
 ├── config/
 │   └── config_test.go       # Config resolution order
 └── output/

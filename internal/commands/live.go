@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -14,7 +15,8 @@ import (
 )
 
 var (
-	liveHomeID string
+	liveHomeID      string
+	liveNoReconnect bool
 )
 
 var liveCmd = &cobra.Command{
@@ -23,7 +25,13 @@ var liveCmd = &cobra.Command{
 	Long: `Stream live power consumption data from your Tibber Pulse.
 
 Requires a Tibber Pulse device connected to your home.
-Press Ctrl+C to stop the stream.`,
+Press Ctrl+C to stop the stream.
+
+A dropped connection is retried with a growing delay, so the stream survives a
+transient network failure. Errors that a reconnect cannot fix - an invalid token
+or an unknown home ID - still exit immediately. Tibber allows 20 WebSocket
+connections per hour, and reconnects stay well inside that; use --no-reconnect
+to exit on the first error instead.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := cfg.Validate(); err != nil {
 			exitWithError("%v", err)
@@ -69,7 +77,7 @@ Press Ctrl+C to stop the stream.`,
 
 		fmt.Fprintf(os.Stderr, "Connecting to live stream...\n")
 
-		err := liveClient.Subscribe(ctx, func(m *models.LiveMeasurement) error {
+		handler := func(m *models.LiveMeasurement) error {
 			// Clear screen for markdown, just print for JSON
 			if cfg.Format == "json" {
 				fmt.Println(formatter.FormatLiveMeasurement(m))
@@ -79,7 +87,21 @@ Press Ctrl+C to stop the stream.`,
 				fmt.Println(formatter.FormatLiveMeasurement(m))
 			}
 			return nil
-		})
+		}
+
+		var err error
+		if liveNoReconnect {
+			err = liveClient.Subscribe(ctx, handler)
+		} else {
+			policy := api.DefaultReconnectPolicy()
+			policy.Notify = func(attempt int, delay time.Duration, cause error) {
+				// stderr only - stdout carries the measurements, which
+				// --format json callers pipe straight into jq.
+				fmt.Fprintf(os.Stderr, "Connection lost: %v\nReconnecting in %s (attempt %d)...\n",
+					cause, delay.Round(time.Second), attempt)
+			}
+			err = liveClient.SubscribeWithReconnect(ctx, policy, handler)
+		}
 
 		if err != nil && ctx.Err() == nil {
 			exitWithError("Stream error: %v", err)
@@ -89,5 +111,6 @@ Press Ctrl+C to stop the stream.`,
 
 func init() {
 	liveCmd.Flags().StringVar(&liveHomeID, "home-id", "", "specific home ID to monitor")
+	liveCmd.Flags().BoolVar(&liveNoReconnect, "no-reconnect", false, "exit on the first stream error instead of reconnecting")
 	rootCmd.AddCommand(liveCmd)
 }

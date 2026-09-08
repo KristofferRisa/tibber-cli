@@ -173,6 +173,19 @@ powerctl live --home-id 96a14971-525a-4420-aae9-e5aefaf46a81
 
 `powerctl consumption` takes the same flag.
 
+A dropped connection is retried automatically, so the stream can be left
+running. The wait starts at 5 seconds and doubles to a 5-minute ceiling, and no
+more than 10 connections are opened in any rolling hour — Tibber allows 20, and
+a manual restart needs some left. Progress notes go to stderr, so `--format
+json` output stays pipeable.
+
+Failures a reconnect cannot fix — an invalid token, an unknown home ID — still
+exit 1 immediately instead of retrying. To get that for every error:
+
+```bash
+powerctl live --no-reconnect
+```
+
 ### Output Formats
 
 Default output is beautiful colored CLI. Change format with `--format`:
@@ -247,9 +260,12 @@ make lint           # Run linter (requires golangci-lint)
 - The ID passed to `--home-id` is not on your account. List valid IDs with `powerctl home`
 
 **Live stream disconnects**
-- Rate limit is 20 connections/hour
-- There is no automatic reconnect — the command exits with code 1 and the error.
-  Re-run it, or wrap it in a supervisor if you need it to stay up
+- Dropped connections are retried automatically — watch stderr for
+  `Reconnecting in ...`
+- Rate limit is 20 connections/hour. `powerctl` spends at most 10 of them, then
+  stops with "reconnect budget exhausted" rather than taking the rest; wait for
+  the hour to roll over before restarting
+- `--no-reconnect` restores the old behaviour of exiting 1 on the first error
 
 ## Contributing
 
